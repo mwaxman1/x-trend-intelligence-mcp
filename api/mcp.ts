@@ -3,7 +3,7 @@
  * Handles MCP protocol over Streamable HTTP transport at /api/mcp
  */
 
-import { createServer, extractBearerToken } from '../dist/index.js';
+import { createServer, extractAuthContext } from '../dist/index.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
@@ -25,17 +25,19 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   for (const [key, value] of Object.entries(req.headers ?? {})) {
     headers[key] = value;
   }
-  const token = extractBearerToken(headers);
-  if (!token) {
+  const auth = extractAuthContext(headers);
+  if (!auth.token) {
     res.statusCode = 401;
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({
       error: 'Unauthorized',
-      message: 'X API bearer token required. Provide via Authorization: Bearer <token> or x-api-key header.',
+      message: 'API token required. Provide an X API bearer token or send x-data-source: xquik with an Xquik API key.',
     }));
     return;
   }
-  (globalThis as Record<string, unknown>).__xBearerToken = token;
+  (globalThis as Record<string, unknown>).__xBearerToken = auth.token;
+  (globalThis as Record<string, unknown>).__xDataSource = auth.source;
+  (globalThis as Record<string, unknown>).__xquikApiBaseUrl = auth.xquikBaseUrl;
 
   // Create or reuse server
   if (!cachedServer) {
