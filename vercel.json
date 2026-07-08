@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
+  "buildCommand": "npm run build && cp public/index.html dist/index.html",
   "outputDirectory": "dist",
   "functions": {
-    "src/api/mcp.ts": { "memory": "512mb" },
-    "src/api/health.ts": { "memory": "128mb" }
+    "api/mcp.ts": { "memory": 512 },
+    "api/health.ts": { "memory": 128 }
   },
   "routes": [
     { "src": "/api/mcp", "dest": "/api/mcp" },

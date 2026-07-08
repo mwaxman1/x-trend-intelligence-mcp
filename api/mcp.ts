@@ -1,0 +1,65 @@
+/**
+ * Vercel serverless function: MCP endpoint
+ * Handles MCP protocol over Streamable HTTP transport at /api/mcp
+ */
+
+import { createServer, extractBearerToken } from '../dist/index.js';
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import type { IncomingMessage, ServerResponse } from 'node:http';
+
+// Cache server instance across warm invocations
+let cachedServer: ReturnType<typeof createServer> | null = null;
+
+export default async function handler(req: IncomingMessage, res: ServerResponse) {
+  // Only accept POST (for MCP requests) and GET (for SSE)
+  const method = req.method ?? '';
+  if (method !== 'POST' && method !== 'GET') {
+    res.statusCode = 405;
+    res.setHeader('Allow', 'POST, GET');
+    res.end(JSON.stringify({ error: 'Method not allowed. Use POST for MCP requests.' }));
+    return;
+  }
+
+  // Extract bearer token from headers
+  const headers: Record<string, string | string[] | undefined> = {};
+  for (const [key, value] of Object.entries(req.headers ?? {})) {
+    headers[key] = value;
+  }
+  const token = extractBearerToken(headers);
+  if (!token) {
+    res.statusCode = 401;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({
+      error: 'Unauthorized',
+      message: 'X API bearer token required. Provide via Authorization: Bearer <token> or x-api-key header.',
+    }));
+    return;
+  }
+  (globalThis as Record<string, unknown>).__xBearerToken = token;
+
+  // Create or reuse server
+  if (!cachedServer) {
+    cachedServer = createServer();
+  }
+  const server = cachedServer;
+
+  // Use Streamable HTTP transport (stateless mode for serverless)
+  const transport = new StreamableHTTPServerTransport({
+    sessionIdGenerator: undefined,
+  });
+
+  try {
+    // Connect server to transport
+    await server.connect(transport);
+
+    // Handle the incoming request through the transport
+    await transport.handleRequest(req, res);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    if (!res.headersSent) {
+      res.statusCode = 500;
+      res.setHeader('Content-Type', 'application/json');
+    }
+    res.end(JSON.stringify({ error: 'MCP server error', message }));
+  }
+}
