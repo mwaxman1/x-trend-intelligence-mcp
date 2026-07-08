@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>X-Trend Intelligence Agent — Social intelligence for AI agents</title>
+<meta name="description" content="MCP server that lets Claude, Cursor, and ChatGPT analyze competitor sentiment, track brand mentions, and detect trending topics on X/Twitter. $29/mo, no dashboard needed.">
+<style>
+:root {
+  --bg: #0a0a0a;
+  --card: #141414;
+  --border: #222;
+  --text: #e8e8e8;
+  --muted: #888;
+  --accent: #1d9bf0;
+  --accent-hover: #1a8cd8;
+  --green: #00ba7c;
+  --red: #f91880;
+  --yellow: #ffd400;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+/* Hero */
+.hero { padding: 80px 0 60px; text-align: center; }
+.hero h1 { font-size: 2.8rem; font-weight: 800; margin-bottom: 16px; letter-spacing: -0.03em; }
+.hero h1 .accent { color: var(--accent); }
+.hero p.tagline { font-size: 1.3rem; color: var(--muted); margin-bottom: 32px; }
+.hero .cta-group { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+.btn { display: inline-block; padding: 14px 32px; border-radius: 8px; font-weight: 600; text-decoration: none; font-size: 1rem; transition: all 0.2s; }
+.btn-primary { background: var(--accent); color: white; }
+.btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+.btn-secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { border-color: var(--accent); }
+/* Badge */
+.badge { display: inline-block; background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 6px 16px; font-size: 0.85rem; color: var(--muted); margin-bottom: 24px; }
+.badge .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--green); margin-right: 8px; }
+/* Section */
+section { padding: 60px 0; }
+section h2 { font-size: 2rem; font-weight: 700; margin-bottom: 24px; text-align: center; }
+/* Features */
+.features { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+.feature { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 28px; }
+.feature .icon { font-size: 1.8rem; margin-bottom: 12px; }
+.feature h3 { font-size: 1.15rem; font-weight: 600; margin-bottom: 8px; }
+.feature p { color: var(--muted); font-size: 0.95rem; }
+/* Code block */
+.code-block { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin: 24px 0; overflow-x: auto; }
+.code-block pre { font-family: 'SF Mono', Monaco, monospace; font-size: 0.9rem; color: #a8d4f0; }
+.code-block .comment { color: var(--muted); }
+.code-block .keyword { color: var(--accent); }
+.code-block .string { color: var(--green); }
+/* Pricing */
+.pricing { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; max-width: 800px; margin: 0 auto; }
+.price-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 32px; text-align: center; }
+.price-card.featured { border-color: var(--accent); position: relative; }
+.price-card.featured::before { content: 'Most Popular'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; padding: 4px 16px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+.price-card .price { font-size: 2.5rem; font-weight: 800; margin: 16px 0; }
+.price-card .price .per { font-size: 0.9rem; color: var(--muted); }
+.price-card ul { list-style: none; margin: 16px 0; }
+.price-card ul li { padding: 6px 0; color: var(--muted); font-size: 0.95rem; }
+.price-card ul li::before { content: '✓'; color: var(--green); margin-right: 8px; }
+/* Comparison */
+.comparison { width: 100%; border-collapse: collapse; margin: 24px 0; }
+.comparison th, .comparison td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+.comparison th { color: var(--muted); font-weight: 600; font-size: 0.9rem; }
+.comparison td { font-size: 0.95rem; }
+.comparison tr:hover { background: var(--card); }
+.comparison .check { color: var(--green); }
+.comparison .cross { color: var(--red); }
+/* Footer */
+footer { padding: 40px 0; text-align: center; color: var(--muted); border-top: 1px solid var(--border); }
+footer a { color: var(--accent); text-decoration: none; }
+/* Responsive */
+@media (max-width: 600px) {
+  .hero h1 { font-size: 2rem; }
+  .hero p.tagline { font-size: 1.1rem; }
+  .features { grid-template-columns: 1fr; }
+  .pricing { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Hero -->
+  <div class="hero">
+    <div class="badge"><span class="dot"></span>MCP-native · Launches July 2026</div>
+    <h1>Ask your AI agent what the world thinks<br>about your <span class="accent">competitors</span>.</h1>
+    <p class="tagline">X-Trend Intelligence Agent is an MCP server that lets Claude, Cursor, and ChatGPT analyze competitor sentiment, track brand mentions, and detect trending topics on X — without a dashboard.</p>
+    <div class="cta-group">
+      <a href="#" class="btn btn-primary">Get Started — $29/mo</a>
+      <a href="#tools" class="btn btn-secondary">See the 8 tools</a>
+    </div>
+  </div>
+
+  <!-- Code Example -->
+  <section>
+    <h2>How it works</h2>
+    <p style="text-align: center; color: var(--muted); margin-bottom: 24px;">Install once. Then just ask your AI agent.</p>
+    <div class="code-block">
+<pre><span class="comment"># Install in any MCP-compatible tool (Claude, Cursor, ChatGPT)</span>
+<span class="keyword">mcpize install</span> x-trend-intelligence
+
+<span class="comment"># Then just ask your AI:</span>
+<span class="string">"What are the top 3 complaints about Notion in the last 48 hours?"</span>
+<span class="string">"How has sentiment around Linear shifted this week vs last week?"</span>
+<span class="string">"Which trending topics overlap with project management tools?"</span>
+<span class="string">"Compare share of voice: Figma vs Adobe XD vs Sketch"</span>
+
+<span class="comment"># Your AI agent calls our tools directly. No dashboard needed.</span></pre>
+    </div>
+  </section>
+
+  <!-- Tools -->
+  <section id="tools">
+    <h2>8 intelligence tools, one MCP server</h2>
+    <div class="features">
+      <div class="feature">
+        <div class="icon">🎯</div>
+        <h3>Competitor Sentiment</h3>
+        <p>Search X posts mentioning any competitor and get a deterministic sentiment score with top posts categorized.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">📊</div>
+        <h3>Brand Mentions</h3>
+        <p>Track your brand's mention volume, engagement stats, and top posts over 24h, 7d, or 30d windows.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">🔥</div>
+        <h3>Trending Topics</h3>
+        <p>Get X trends for any location, cross-referenced with post volume to identify what's actually rising.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">⚖️</div>
+        <h3>Share of Voice</h3>
+        <p>Compare mention counts and engagement for 2–5 competitors over any time window. See who's winning.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">⚠️</div>
+        <h3>Complaint Detection</h3>
+        <p>Find negative posts about any brand automatically. Categorized by complaint type with post URLs.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">📈</div>
+        <h3>Keyword Frequency</h3>
+        <p>Track how often a keyword or phrase appears in X posts over time. Spot rising terms before they peak.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">👤</div>
+        <h3>Influencer Reach</h3>
+        <p>Look up any X user's follower count, recent engagement rates, and top-performing content.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">📄</div>
+        <h3>Intelligence Report</h3>
+        <p>Generate a structured markdown report combining multiple analyses into one deliverable document.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why -->
+  <section>
+    <h2>Why X-Trend Intelligence?</h2>
+    <div class="features">
+      <div class="feature">
+        <div class="icon">🤖</div>
+        <h3>MCP-native</h3>
+        <p>Built for AI agents, not dashboards. Claude, Cursor, and ChatGPT call our tools directly — no separate login, no screenshot, no copy-paste.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">⚡</div>
+        <h3>Deterministic sentiment</h3>
+        <p>No LLM API costs. Sentiment is scored via keyword lexicon + engagement signals. Transparent, reproducible, and fast.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">💸</div>
+        <h3>10× cheaper</h3>
+        <p>$29/mo vs $500+/mo for Brandwatch or Talkwalker. Same intelligence, no enterprise contract, no sales call.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison -->
+  <section>
+    <h2>How we compare</h2>
+    <table class="comparison">
+      <thead>
+        <tr>
+          <th>Tool</th>
+          <th>Price</th>
+          <th>MCP-native</th>
+          <th>Sentiment</th>
+          <th>Dashboard required</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>X-Trend Intelligence</strong></td>
+          <td>$29/mo</td>
+          <td class="check">✓</td>
+          <td class="check">✓ Deterministic</td>
+          <td class="check">No</td>
+        </tr>
+        <tr>
+          <td>Brandwatch</td>
+          <td>$25K+/yr</td>
+          <td class="cross">✗</td>
+          <td class="check">✓ LLM-based</td>
+          <td class="cross">Yes</td>
+        </tr>
+        <tr>
+          <td>Talkwalker</td>
+          <td>$500+/mo</td>
+          <td class="cross">✗</td>
+          <td class="check">✓ LLM-based</td>
+          <td class="cross">Yes</td>
+        </tr>
+        <tr>
+          <td>Sprout Social</td>
+          <td>$249+/mo</td>
+          <td class="cross">✗</td>
+          <td>Partial</td>
+          <td class="cross">Yes</td>
+        </tr>
+        <tr>
+          <td>Mention</td>
+          <td>$29/mo</td>
+          <td class="cross">✗</td>
+          <td>Basic</td>
+          <td class="cross">Yes</td>
+        </tr>
+        <tr>
+          <td>X MCP (official)</td>
+          <td>Free + API costs</td>
+          <td class="check">✓</td>
+          <td class="cross">✗</td>
+          <td class="check">No</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Pricing -->
+  <section id="pricing">
+    <h2>Simple pricing</h2>
+    <div class="pricing">
+      <div class="price-card">
+        <h3>Starter</h3>
+        <div class="price">$29<span class="per">/mo</span></div>
+        <ul>
+          <li>1,000 API calls/mo</li>
+          <li>All 8 intelligence tools</li>
+          <li>7-day post history</li>
+          <li>Email support</li>
+        </ul>
+        <a href="#" class="btn btn-secondary" style="margin-top: 16px;">Start free trial</a>
+      </div>
+      <div class="price-card featured">
+        <h3>Pro</h3>
+        <div class="price">$99<span class="per">/mo</span></div>
+        <ul>
+          <li>5,000 API calls/mo</li>
+          <li>All 8 intelligence tools</li>
+          <li>30-day post history</li>
+          <li>Priority support</li>
+          <li>Export reports</li>
+        </ul>
+        <a href="#" class="btn btn-primary" style="margin-top: 16px;">Start free trial</a>
+      </div>
+      <div class="price-card">
+        <h3>Enterprise</h3>
+        <div class="price">Custom</div>
+        <ul>
+          <li>Unlimited API calls</li>
+          <li>Custom sentiment lexicon</li>
+          <li>Multi-platform (Reddit, LinkedIn)</li>
+          <li>Dedicated support</li>
+          <li>SLA</li>
+        </ul>
+        <a href="#" class="btn btn-secondary" style="margin-top: 16px;">Contact us</a>
+      </div>
+    </div>
+    <p style="text-align: center; color: var(--muted); margin-top: 24px; font-size: 0.9rem;">BYO X API bearer token. X API costs ($0.005/post read) are billed by X directly.</p>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>X-Trend Intelligence Agent · Built by Hermes Commerce · <a href="https://mcpize.com">Available on MCPize</a></p>
+    <p style="margin-top: 8px; font-size: 0.85rem;">Not affiliated with X/Twitter. Uses X API v2 under user-provided credentials.</p>
+  </footer>
+</div>
+
+</body>
+</html>
