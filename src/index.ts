@@ -5,7 +5,7 @@
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
-import { XApiClient, XApiError } from './lib/x-api.js';
+import { XApiClient, XApiError, XquikApiClient } from './lib/x-api.js';
 import { analyzeCompetitorSentiment } from './tools/competitor-sentiment.js';
 import { trackBrandMentions } from './tools/brand-mentions.js';
 import { detectTrendingTopics } from './tools/trending-topics.js';
@@ -44,6 +44,50 @@ export function extractBearerToken(headers: Record<string, string | string[] | u
   return '';
 }
 
+type XDataSource = 'x-api' | 'xquik';
+
+export interface AuthContext {
+  token: string;
+  source: XDataSource;
+  xquikBaseUrl?: string;
+}
+
+export function extractAuthContext(headers: Record<string, string | string[] | undefined>): AuthContext {
+  const source = getHeader(headers, 'x-data-source') === 'xquik' ? 'xquik' : 'x-api';
+  if (source === 'xquik') {
+    return {
+      source,
+      token: getHeader(headers, 'x-xquik-api-key') || getHeader(headers, 'x-api-key') || extractBearerToken(headers),
+      xquikBaseUrl: getHeader(headers, 'x-xquik-api-base-url'),
+    };
+  }
+
+  return {
+    source,
+    token: extractBearerToken(headers),
+  };
+}
+
+function getHeader(headers: Record<string, string | string[] | undefined>, name: string): string {
+  const value = headers[name];
+  if (Array.isArray(value)) {
+    return value[0] ?? '';
+  }
+  return value ?? '';
+}
+
+function createXClient(token: string): XApiClient {
+  const source = ((globalThis as Record<string, unknown>).__xDataSource as XDataSource | undefined) ?? 'x-api';
+  if (source === 'xquik') {
+    return new XquikApiClient(
+      token,
+      (globalThis as Record<string, unknown>).__xquikApiBaseUrl as string | undefined,
+    );
+  }
+
+  return new XApiClient(token);
+}
+
 /**
  * Create the MCP server with all tools registered.
  */
@@ -67,7 +111,7 @@ export function createServer(): McpServer {
         const token = (globalThis as Record<string, unknown>).__xBearerToken as string;
         if (!token) throw new XApiError('X API bearer token required. Provide it via Authorization header.', 401);
 
-        const client = new XApiClient(token);
+        const client = createXClient(token);
         const result = await analyzeCompetitorSentiment(client, params);
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
       } catch (err) {
@@ -90,7 +134,7 @@ export function createServer(): McpServer {
         const token = (globalThis as Record<string, unknown>).__xBearerToken as string;
         if (!token) throw new XApiError('X API bearer token required.', 401);
 
-        const client = new XApiClient(token);
+        const client = createXClient(token);
         const result = await trackBrandMentions(client, params);
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
       } catch (err) {
@@ -113,7 +157,7 @@ export function createServer(): McpServer {
         const token = (globalThis as Record<string, unknown>).__xBearerToken as string;
         if (!token) throw new XApiError('X API bearer token required.', 401);
 
-        const client = new XApiClient(token);
+        const client = createXClient(token);
         const result = await detectTrendingTopics(client, params);
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
       } catch (err) {
@@ -136,7 +180,7 @@ export function createServer(): McpServer {
         const token = (globalThis as Record<string, unknown>).__xBearerToken as string;
         if (!token) throw new XApiError('X API bearer token required.', 401);
 
-        const client = new XApiClient(token);
+        const client = createXClient(token);
         const result = await compareShareOfVoice(client, params);
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
       } catch (err) {
@@ -159,7 +203,7 @@ export function createServer(): McpServer {
         const token = (globalThis as Record<string, unknown>).__xBearerToken as string;
         if (!token) throw new XApiError('X API bearer token required.', 401);
 
-        const client = new XApiClient(token);
+        const client = createXClient(token);
         const result = await identifyComplaints(client, params);
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
       } catch (err) {
@@ -182,7 +226,7 @@ export function createServer(): McpServer {
         const token = (globalThis as Record<string, unknown>).__xBearerToken as string;
         if (!token) throw new XApiError('X API bearer token required.', 401);
 
-        const client = new XApiClient(token);
+        const client = createXClient(token);
         const result = await monitorKeywordFrequency(client, params);
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
       } catch (err) {
@@ -204,7 +248,7 @@ export function createServer(): McpServer {
         const token = (globalThis as Record<string, unknown>).__xBearerToken as string;
         if (!token) throw new XApiError('X API bearer token required.', 401);
 
-        const client = new XApiClient(token);
+        const client = createXClient(token);
         const result = await analyzeInfluencerReach(client, params);
         return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
       } catch (err) {
@@ -230,7 +274,7 @@ export function createServer(): McpServer {
         const token = (globalThis as Record<string, unknown>).__xBearerToken as string;
         if (!token) throw new XApiError('X API bearer token required.', 401);
 
-        const client = new XApiClient(token);
+        const client = createXClient(token);
         const result = await exportIntelligenceReport(client, params);
         return { content: [{ type: 'text', text: result.markdown }] };
       } catch (err) {

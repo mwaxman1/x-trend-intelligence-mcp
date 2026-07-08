@@ -18,6 +18,7 @@ A production-ready MCP (Model Context Protocol) server that provides determinist
 - **MCP-native** — AI agents call tools directly, no dashboard needed.
 - **Vercel-ready** — Deploys as serverless functions with Streamable HTTP transport.
 - **BYO X API token** — Users bring their own X API v2 bearer token.
+- **Optional Xquik source mode** — Use an Xquik API key for search-backed intelligence tools.
 
 ## Quick Start
 
@@ -94,6 +95,28 @@ Provide your X API bearer token via one of:
 - `Authorization: Bearer <token>` header
 - `x-api-key: <token>` header
 - `x-api-bearer: <token>` header
+
+### Optional Xquik Source Mode
+
+For users who already use Xquik, the MCP endpoint can read tweet search results
+from Xquik instead of the direct X API. Set these headers on the MCP connection:
+
+```json
+{
+  "x-data-source": "xquik",
+  "x-xquik-api-key": "YOUR_XQUIK_API_KEY"
+}
+```
+
+Xquik mode supports the search-backed tools:
+
+- `analyze_competitor_sentiment`
+- `track_brand_mentions`
+- `compare_share_of_voice`
+- `identify_complaints`
+- `monitor_keyword_frequency`
+
+Use direct X API mode for profile timeline, tweet lookup, and trends tools.
 
 ### Health Check
 

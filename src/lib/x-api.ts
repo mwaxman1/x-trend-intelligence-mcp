@@ -71,6 +71,30 @@ export interface XTrendsResponse {
   data?: { trends: XTrend[]; location: string }[];
 }
 
+interface XquikSearchTweet {
+  id: string;
+  text: string;
+  createdAt?: string;
+  author?: {
+    id?: string;
+    name?: string;
+    username?: string;
+    verified?: boolean;
+  };
+  bookmarkCount?: number;
+  likeCount?: number;
+  quoteCount?: number;
+  replyCount?: number;
+  retweetCount?: number;
+  viewCount?: number;
+}
+
+interface XquikSearchResponse {
+  tweets?: XquikSearchTweet[];
+  has_next_page?: boolean;
+  next_cursor?: string;
+}
+
 export class XApiError extends Error {
   status: number;
   body: unknown;
@@ -257,4 +281,146 @@ export class XApiClient {
 
     return { tweets: allTweets.slice(0, maxTotal), users: Array.from(userMap.values()) };
   }
+}
+
+export class XquikApiClient extends XApiClient {
+  private apiKey: string;
+  private apiBaseUrl: string;
+
+  constructor(apiKey: string, apiBaseUrl = 'https://xquik.com/api/v1') {
+    super(apiKey);
+    if (!apiKey) {
+      throw new XApiError('Xquik API key is required', 401);
+    }
+    this.apiKey = apiKey;
+    this.apiBaseUrl = normalizeXquikBaseUrl(apiBaseUrl);
+  }
+
+  override async searchRecentTweets(
+    query: string,
+    opts?: {
+      maxResults?: number;
+      nextToken?: string;
+      startTime?: string;
+      endTime?: string;
+      tweetFields?: string;
+      expansions?: string;
+    },
+  ): Promise<XSearchResponse> {
+    const url = new URL(`${this.apiBaseUrl}/x/tweets/search`);
+    url.searchParams.set('q', query);
+    if (opts?.nextToken) {
+      url.searchParams.set('cursor', opts.nextToken);
+    }
+
+    const response = await this.requestXquik<XquikSearchResponse>(url);
+    const tweets = response.tweets ?? [];
+    const users = new Map<string, XUser>();
+
+    const data = tweets.map((tweet): XTweet => {
+      const author = normalizeXquikAuthor(tweet.author);
+      if (author) {
+        users.set(author.id, author);
+      }
+
+      return {
+        id: tweet.id,
+        text: tweet.text,
+        created_at: tweet.createdAt,
+        author_id: author?.id,
+        public_metrics: {
+          retweet_count: tweet.retweetCount ?? 0,
+          reply_count: tweet.replyCount ?? 0,
+          like_count: tweet.likeCount ?? 0,
+          quote_count: tweet.quoteCount ?? 0,
+          impression_count: tweet.viewCount,
+          bookmark_count: tweet.bookmarkCount,
+        },
+      };
+    });
+
+    return {
+      data,
+      meta: {
+        next_token: response.has_next_page ? response.next_cursor : undefined,
+        result_count: data.length,
+      },
+      includes: {
+        users: Array.from(users.values()),
+      },
+    };
+  }
+
+  override async getUserByUsername(): Promise<XUserResponse> {
+    throw new XApiError('Xquik source mode currently supports search-based intelligence tools only.', 501);
+  }
+
+  override async getUserTweets(): Promise<XSearchResponse> {
+    throw new XApiError('Xquik source mode currently supports search-based intelligence tools only.', 501);
+  }
+
+  override async getTweet(): Promise<{ data: XTweet }> {
+    throw new XApiError('Xquik source mode currently supports search-based intelligence tools only.', 501);
+  }
+
+  override async getTrends(): Promise<XTrendsResponse> {
+    throw new XApiError('Xquik source mode currently supports search-based intelligence tools only.', 501);
+  }
+
+  private async requestXquik<T>(url: URL): Promise<T> {
+    let response: Response;
+    try {
+      response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: {
+          'x-api-key': this.apiKey,
+          Accept: 'application/json',
+        },
+      });
+    } catch (err) {
+      throw new XApiError(
+        `Network error contacting Xquik API: ${err instanceof Error ? err.message : 'unknown'}`,
+        503,
+      );
+    }
+
+    const bodyText = await response.text();
+    let body: unknown;
+    try {
+      body = bodyText ? JSON.parse(bodyText) : {};
+    } catch {
+      body = bodyText;
+    }
+
+    if (!response.ok) {
+      const errorMsg =
+        (body as { message?: string; error?: string })?.message ||
+        (body as { error?: string })?.error ||
+        `Xquik API returned status ${response.status}`;
+      throw new XApiError(errorMsg, response.status, body);
+    }
+
+    return body as T;
+  }
+}
+
+function normalizeXquikBaseUrl(apiBaseUrl: string): string {
+  const url = new URL(apiBaseUrl);
+  if (url.protocol !== 'https:') {
+    throw new XApiError('Xquik API base URL must use HTTPS.', 400);
+  }
+  return url.toString().replace(/\/$/, '');
+}
+
+function normalizeXquikAuthor(author: XquikSearchTweet['author']): XUser | undefined {
+  if (!author?.username) {
+    return undefined;
+  }
+
+  return {
+    id: author.id ?? author.username,
+    name: author.name ?? author.username,
+    username: author.username,
+    verified: author.verified,
+  };
 }
