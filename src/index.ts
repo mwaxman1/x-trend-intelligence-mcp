@@ -46,8 +46,9 @@ export function extractBearerToken(headers: Record<string, string | string[] | u
 
 /**
  * Create the MCP server with all tools registered.
+ * The token is scoped to this server instance — no global state, no cross-request leakage.
  */
-export function createServer(): McpServer {
+export function createServer(token: string): McpServer {
   const server = new McpServer({
     name: 'x-trend-intelligence',
     version: '1.0.0',
@@ -64,7 +65,6 @@ export function createServer(): McpServer {
     },
     async (params) => {
       try {
-        const token = (globalThis as Record<string, unknown>).__xBearerToken as string;
         if (!token) throw new XApiError('X API bearer token required. Provide it via Authorization header.', 401);
 
         const client = new XApiClient(token);
@@ -87,7 +87,6 @@ export function createServer(): McpServer {
     },
     async (params) => {
       try {
-        const token = (globalThis as Record<string, unknown>).__xBearerToken as string;
         if (!token) throw new XApiError('X API bearer token required.', 401);
 
         const client = new XApiClient(token);
@@ -110,7 +109,6 @@ export function createServer(): McpServer {
     },
     async (params) => {
       try {
-        const token = (globalThis as Record<string, unknown>).__xBearerToken as string;
         if (!token) throw new XApiError('X API bearer token required.', 401);
 
         const client = new XApiClient(token);
@@ -133,7 +131,6 @@ export function createServer(): McpServer {
     },
     async (params) => {
       try {
-        const token = (globalThis as Record<string, unknown>).__xBearerToken as string;
         if (!token) throw new XApiError('X API bearer token required.', 401);
 
         const client = new XApiClient(token);
@@ -156,7 +153,6 @@ export function createServer(): McpServer {
     },
     async (params) => {
       try {
-        const token = (globalThis as Record<string, unknown>).__xBearerToken as string;
         if (!token) throw new XApiError('X API bearer token required.', 401);
 
         const client = new XApiClient(token);
@@ -179,7 +175,6 @@ export function createServer(): McpServer {
     },
     async (params) => {
       try {
-        const token = (globalThis as Record<string, unknown>).__xBearerToken as string;
         if (!token) throw new XApiError('X API bearer token required.', 401);
 
         const client = new XApiClient(token);
@@ -201,7 +196,6 @@ export function createServer(): McpServer {
     },
     async (params) => {
       try {
-        const token = (globalThis as Record<string, unknown>).__xBearerToken as string;
         if (!token) throw new XApiError('X API bearer token required.', 401);
 
         const client = new XApiClient(token);
@@ -227,7 +221,6 @@ export function createServer(): McpServer {
     },
     async (params) => {
       try {
-        const token = (globalThis as Record<string, unknown>).__xBearerToken as string;
         if (!token) throw new XApiError('X API bearer token required.', 401);
 
         const client = new XApiClient(token);
