@@ -1,7 +1,7 @@
 {
   "name": "x-trend-intelligence-mcp",
   "version": "1.0.0",
-  "description": "MCP server for X/Twitter social intelligence — competitor sentiment, trend analysis, brand monitoring",
+  "description": "MCP server exposing 8 social intelligence tools for X/Twitter — competitor sentiment, brand monitoring, trend detection, share-of-voice, complaint identification, keyword tracking, influencer analysis, and combined intelligence reports. Deterministic sentiment scoring, no LLM dependency.",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
@@ -21,5 +21,33 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "author": "Mike Waxman <mwaxman1@users.noreply.github.com>",
+  "homepage": "https://x-trend-intelligence-mcp.vercel.app/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mwaxman1/x-trend-intelligence-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mwaxman1/x-trend-intelligence-mcp/issues"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "x",
+    "twitter",
+    "sentiment",
+    "social-intelligence",
+    "competitor-analysis",
+    "brand-monitoring",
+    "trend-analysis",
+    "share-of-voice",
+    "market-intelligence",
+    "social-listening"
+  ],
+  "mcp": {
+    "registry": "io.github.mwaxman1/x-trend-intelligence",
+    "endpoint": "https://x-trend-intelligence-mcp.vercel.app/api/mcp",
+    "transport": "streamable-http"
+  }
 }

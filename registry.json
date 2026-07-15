@@ -1,0 +1,138 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.mwaxman1/x-trend-intelligence",
+  "description": "MCP server exposing 8 social intelligence tools for X/Twitter — competitor sentiment, brand monitoring, trend detection, share-of-voice, complaint identification, keyword tracking, influencer analysis, and combined intelligence reports. Deterministic sentiment scoring, no LLM dependency.",
+  "title": "X-Trend Intelligence",
+  "websiteUrl": "https://x-trend-intelligence-mcp.vercel.app/",
+  "repository": {
+    "url": "https://github.com/mwaxman1/x-trend-intelligence-mcp",
+    "source": "github"
+  },
+  "version": "1.0.0",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://x-trend-intelligence-mcp.vercel.app/api/mcp",
+      "headers": [
+        {
+          "name": "Authorization",
+          "description": "X API bearer token. Get one at https://developer.x.com",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ],
+  "tools": [
+    {
+      "name": "analyze_competitor_sentiment",
+      "description": "Search recent X posts mentioning a competitor and score sentiment using a deterministic keyword lexicon. Returns sentiment score (-1 to +1), percentages, and top posts."
+    },
+    {
+      "name": "track_brand_mentions",
+      "description": "Track brand mention volume and engagement over time on X. Returns daily counts, trend direction, and top posts by engagement."
+    },
+    {
+      "name": "detect_trending_topics",
+      "description": "Get X/Twitter trending topics for a location and cross-reference with post volume to identify rising trends."
+    },
+    {
+      "name": "compare_share_of_voice",
+      "description": "Compare mention counts and engagement for 2-5 competitors. Returns share-of-voice percentages and sentiment for each."
+    },
+    {
+      "name": "identify_complaints",
+      "description": "Search for X posts mentioning a brand alongside negative keywords. Returns categorized complaints with engagement and links."
+    },
+    {
+      "name": "monitor_keyword_frequency",
+      "description": "Track keyword appearance frequency in X posts over time. Returns daily counts, peak day, related hashtags, and sample posts."
+    },
+    {
+      "name": "analyze_influencer_reach",
+      "description": "Analyze an X user's profile, engagement rates, top performing content, and estimated reach."
+    },
+    {
+      "name": "export_intelligence_report",
+      "description": "Generate a combined markdown intelligence report with brand mentions, competitor sentiment, share of voice, and complaints."
+    }
+  ],
+  "license": "MIT",
+  "keywords": [
+    "x",
+    "twitter",
+    "sentiment",
+    "social-intelligence",
+    "competitor-analysis",
+    "brand-monitoring",
+    "trend-analysis",
+    "share-of-voice",
+    "mcp",
+    "market-intelligence",
+    "social-listening"
+  ],
+  "categories": [
+    "social-media",
+    "analytics",
+    "marketing"
+  ],
+  "_meta": {
+    "io.modelcontextprotocol.registry/publisher-provided": {
+      "pricing": {
+        "plans": [
+          {
+            "name": "Starter",
+            "price": 29,
+            "currency": "USD",
+            "interval": "month",
+            "calls": 1000,
+            "features": [
+              "All 8 tools",
+              "BYO X API token",
+              "Email support",
+              "Community Discord"
+            ]
+          },
+          {
+            "name": "Pro",
+            "price": 99,
+            "currency": "USD",
+            "interval": "month",
+            "calls": 5000,
+            "features": [
+              "All 8 tools",
+              "BYO X API token",
+              "Priority email support",
+              "Community Discord",
+              "Custom sentiment lexicon (early access)"
+            ]
+          },
+          {
+            "name": "Enterprise",
+            "price": null,
+            "currency": "USD",
+            "interval": "month",
+            "calls": null,
+            "features": [
+              "Unlimited calls",
+              "Custom sentiment lexicon",
+              "Dedicated support",
+              "SLA",
+              "On-premise option"
+            ],
+            "contact": "support@x-trend-intelligence.com"
+          }
+        ]
+      },
+      "marketplace": {
+        "name": "X-Trend Intelligence",
+        "tagline": "Ask your AI agent what the world thinks about your competitors.",
+        "shortDescription": "MCP server exposing 8 social intelligence tools for X/Twitter — competitor sentiment, brand monitoring, trend detection, and share-of-voice.",
+        "privacy": "Stateless serverless. No data stored, logged, or tracked. User's X API token used per-request only.",
+        "supportEmail": "support@x-trend-intelligence.com",
+        "documentationUrl": "https://github.com/mwaxman1/x-trend-intelligence-mcp#readme",
+        "healthCheckUrl": "https://x-trend-intelligence-mcp.vercel.app/api/health"
+      }
+    }
+  }
+}
