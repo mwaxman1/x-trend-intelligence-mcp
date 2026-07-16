@@ -128,7 +128,6 @@ async function handleMcpRequest(req: IncomingMessage, res: ServerResponse) {
     const server = createServer(token);
     const transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: () => randomUUID(),
-      enableJsonResponse: true,
       onsessioninitialized: (id: string) => {
         sessions.set(id, { transport, server, token });
       },
